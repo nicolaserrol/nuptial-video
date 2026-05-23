@@ -1,5 +1,5 @@
 import React from "react";
-import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
+import { interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { useBrand } from "../brand/BrandTheme";
 
 type Props = {
@@ -33,8 +33,8 @@ export const LowerThird: React.FC<Props> = ({ label, sublabel, delay = 0 }) => {
       <div
         style={{
           display: "inline-flex",
-          flexDirection: "column",
-          gap: 6,
+          alignItems: "center",
+          gap: 14,
           background: brand.colors.white,
           padding: "14px 22px",
           borderRadius: 14,
@@ -42,6 +42,12 @@ export const LowerThird: React.FC<Props> = ({ label, sublabel, delay = 0 }) => {
           borderLeft: `4px solid ${brand.colors.rose[600]}`,
         }}
       >
+        <img
+          src={staticFile(brand.logo)}
+          alt=""
+          style={{ width: 44, height: 44, borderRadius: 10, objectFit: "contain" }}
+        />
+        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
         <div
           style={{
             fontFamily: brand.fonts.sans,
@@ -65,6 +71,7 @@ export const LowerThird: React.FC<Props> = ({ label, sublabel, delay = 0 }) => {
             {sublabel}
           </div>
         ) : null}
+        </div>
       </div>
     </div>
   );

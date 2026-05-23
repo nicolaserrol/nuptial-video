@@ -127,7 +127,7 @@ export const NuptialPromo: React.FC<NuptialPromoProps> = ({
       </Series>
       {showLowerThird ? (
         <Sequence from={Math.floor(durations[0] / 2)}>
-          <LowerThird label="Nuptial" sublabel="nuptial.app" />
+          <LowerThird label="Nuptial" sublabel="nuptial-ph.com" />
         </Sequence>
       ) : null}
     </BrandTheme>

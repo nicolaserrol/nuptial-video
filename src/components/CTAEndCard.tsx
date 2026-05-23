@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { useBrand } from "../brand/BrandTheme";
 import { TextReveal } from "./TextReveal";
 
@@ -31,6 +31,11 @@ export const CTAEndCard: React.FC<Props> = ({ headline, subhead, url }) => {
         padding: 80,
       }}
     >
+      <img
+        src={staticFile(brand.logo)}
+        alt=""
+        style={{ width: 120, height: 120, borderRadius: 24, objectFit: "contain", marginBottom: 32 }}
+      />
       <TextReveal
         text={headline}
         font="serif"

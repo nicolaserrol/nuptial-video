@@ -40,7 +40,9 @@ export const NUPTIAL_BRAND = {
   },
   brandName: "Nuptial",
   tagline: "Plan the wedding. Keep the magic.",
-  url: "nuptial.app",
+  url: "nuptial-ph.com",
+  fullUrl: "https://nuptial-ph.com",
+  logo: "icon.png",
 } as const;
 
 export type NuptialBrand = typeof NUPTIAL_BRAND;

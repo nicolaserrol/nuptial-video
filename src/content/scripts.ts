@@ -114,7 +114,7 @@ const REEL_LINES: ElevenLabsLine[] = [
   },
   {
     id: "scene-04-cta",
-    text: "Start free at nuptial dot app. Plan the wedding. Keep the magic.",
+    text: "Start free at nuptial dash p h dot com. Plan the wedding. Keep the magic.",
   },
 ];
 
@@ -153,7 +153,7 @@ const REEL_SCENES: SceneCopy[] = [
   {
     id: "scene-04-cta",
     headline: "Start free today.",
-    subhead: "nuptial.app",
+    subhead: "nuptial-ph.com",
     headlineVariants: {
       value: "Free forever\nto get started.",
       transformation: "Start today.\nBreathe tomorrow.",
@@ -185,8 +185,8 @@ export const SCRIPTS: Record<string, VideoScript> = {
     scenes: REEL_SCENES,
     cta: {
       headline: "Plan the wedding.\nKeep the magic.",
-      subhead: "Start free at nuptial.app",
-      url: "nuptial.app",
+      subhead: "Start free at nuptial-ph.com",
+      url: "nuptial-ph.com",
     },
   },
   NuptialSquare: {
@@ -195,8 +195,8 @@ export const SCRIPTS: Record<string, VideoScript> = {
     scenes: REEL_SCENES,
     cta: {
       headline: "Plan the wedding.\nKeep the magic.",
-      subhead: "Start free at nuptial.app",
-      url: "nuptial.app",
+      subhead: "Start free at nuptial-ph.com",
+      url: "nuptial-ph.com",
     },
   },
   NuptialLandscape: {
@@ -205,8 +205,8 @@ export const SCRIPTS: Record<string, VideoScript> = {
     scenes: REEL_SCENES,
     cta: {
       headline: "Plan the wedding. Keep the magic.",
-      subhead: "Start free at nuptial.app",
-      url: "nuptial.app",
+      subhead: "Start free at nuptial-ph.com",
+      url: "nuptial-ph.com",
     },
   },
 };

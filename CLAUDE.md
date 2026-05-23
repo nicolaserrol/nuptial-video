@@ -29,6 +29,10 @@ Composition length is computed by `calculateNuptialPromoMetadata` from actual MP
 
 Brand tokens in `src/brand/tokens.ts` are a **deliberate duplicate** of `../nuptial/tailwind.config.ts` — no shared package. Update both files when the web app's palette changes. Components consume tokens via `useBrand()` from `src/brand/BrandTheme.tsx`.
 
+## Brand constants (do not drift)
+- **URL:** `nuptial-ph.com` (full: `https://nuptial-ph.com`). Never use `nuptial.app` — that domain is not ours. Spoken voiceover: "nuptial dash p h dot com".
+- **Logo:** source-of-truth at `assets/icon.png`; mirrored to `public/icon.png` so Remotion's `staticFile()` can load it. Reference via `brand.logo` from `useBrand()` (resolves to `"icon.png"`). LowerThird and CTAEndCard already render it.
+
 ## Key files
 - `src/Root.tsx` — composition registry
 - `src/compositions/NuptialPromo.tsx` — shared composition + `calculateNuptialPromoMetadata`
