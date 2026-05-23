@@ -12,6 +12,7 @@ import { BrandTheme, useBrand } from "../../brand/BrandTheme";
 import { CaptionedScene } from "../../components/CaptionedScene";
 import { CTAEndCard } from "../../components/CTAEndCard";
 import { LowerThird } from "../../components/LowerThird";
+import { SceneTransition } from "../../components/SceneTransition";
 import { SCRIPTS, resolveHeadline } from "../../content/scripts";
 import { autoCaptions } from "../../utils/captions";
 
@@ -22,6 +23,9 @@ export const nuptialPromoSchema = z.object({
   hookStyle: z
     .enum(["curiosity", "value", "contrarian", "transformation", "social-proof"])
     .optional(),
+  transition: z
+    .enum(["fade", "slide-up", "wipe", "none"])
+    .default("fade"),
 });
 
 export type NuptialPromoProps = z.infer<typeof nuptialPromoSchema> & {
@@ -74,6 +78,7 @@ export const NuptialPromo: React.FC<NuptialPromoProps> = ({
   showLowerThird,
   showCaptions,
   hookStyle,
+  transition,
   sceneDurations,
   ctaDurationFrames,
 }) => {
@@ -96,21 +101,28 @@ export const NuptialPromo: React.FC<NuptialPromoProps> = ({
                 (line ? autoCaptions(line.text, durations[idx]) : undefined));
           return (
             <Series.Sequence key={scene.id} durationInFrames={durations[idx]}>
-              <CaptionedScene
-                audioSrc={`voiceover/${compositionId}/${scene.id}.mp3`}
-                headline={resolveHeadline(scene, hookStyle)}
-                subhead={scene.subhead}
-                captions={captions}
-              />
+              <SceneTransition
+                durationInFrames={durations[idx]}
+                kind={transition}
+              >
+                <CaptionedScene
+                  audioSrc={`voiceover/${compositionId}/${scene.id}.mp3`}
+                  headline={resolveHeadline(scene, hookStyle)}
+                  subhead={scene.subhead}
+                  captions={captions}
+                />
+              </SceneTransition>
             </Series.Sequence>
           );
         })}
         <Series.Sequence durationInFrames={ctaFrames}>
-          <CTAEndCard
-            headline={script.cta.headline}
-            subhead={script.cta.subhead}
-            url={script.cta.url}
-          />
+          <SceneTransition durationInFrames={ctaFrames} kind={transition}>
+            <CTAEndCard
+              headline={script.cta.headline}
+              subhead={script.cta.subhead}
+              url={script.cta.url}
+            />
+          </SceneTransition>
         </Series.Sequence>
       </Series>
       {showLowerThird ? (

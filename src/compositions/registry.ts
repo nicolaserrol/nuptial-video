@@ -47,7 +47,7 @@ export const TEMPLATES: TemplateRegistration<NuptialPromoProps>[] = [
     schema: nuptialPromoSchema,
     fps: 30,
     fallbackDurationInFrames: 20 * 30,
-    defaultProps: { showLowerThird: true, showCaptions: true },
+    defaultProps: { showLowerThird: true, showCaptions: true, transition: "fade" },
     calculateMetadata: calculateNuptialPromoMetadata,
     formats: [
       { id: "NuptialReel", width: 1080, height: 1920 },
