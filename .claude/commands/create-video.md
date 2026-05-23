@@ -59,6 +59,18 @@ cat tmp/video-draft.json | npm run scaffold:video -- -
 
 Read the output for the list of new composition ids.
 
+## Step 4.5 — Animation polish pass (MANDATORY)
+Scaffolded compositions are intentionally minimal. Before voiceover/render, **always invoke the `/frontend-design` skill** on the newly created composition file(s) to enrich motion and visual quality. This step is non-optional — the user has flagged plain output as a recurring problem.
+
+Brief the skill with:
+- File paths of the new compositions (e.g. `src/compositions/<Slug>.tsx` or the shared `NuptialPromo.tsx` if reused)
+- Brand constraints: tokens from `src/brand/tokens.ts` via `useBrand()`; fonts Playfair Display + Inter; never introduce new dependencies
+- Motion goals: per-scene entrance/exit, staggered text reveals, kinetic typography on headlines, layered depth (parallax / drift / scale), spring easing via `spring()` from Remotion, smooth cross-scene transitions, lower-third and CTA card flourishes
+- Per-scene `motionNotes` from the scriptwriter's JSON (Step 2) as direction
+- Aspect-ratio awareness: animations must read well in 9:16, 1:1, and 16:9
+
+After the polish pass, briefly report what changed (which scenes, which animation techniques added). Then proceed.
+
 ## Step 5 — Voiceover gate
 Generating voiceover **bills ElevenLabs**. Ask the user once:
 - **Generate voiceover now** for all new compositions

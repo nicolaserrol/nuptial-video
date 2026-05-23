@@ -114,7 +114,7 @@ const REEL_LINES: ElevenLabsLine[] = [
   },
   {
     id: "scene-04-cta",
-    text: "Start free at nuptial dash p h dot com. Plan the wedding. Keep the magic.",
+    text: "Start free at nuptial-ph dot com. Plan the wedding. Keep the magic.",
   },
 ];
 

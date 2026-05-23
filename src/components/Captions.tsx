@@ -21,10 +21,13 @@ export const Captions: React.FC<Props> = ({
   if (!active) return null;
 
   const local = frame - active.from;
-  const fadeFrames = 4;
+  const span = active.to - active.from;
+  // Guard against captions shorter than 2 * fadeFrames (interpolate requires
+  // strictly increasing input ranges).
+  const fadeFrames = Math.max(1, Math.min(4, Math.floor(span / 3)));
   const opacity = interpolate(
     local,
-    [0, fadeFrames, active.to - active.from - fadeFrames, active.to - active.from],
+    [0, fadeFrames, span - fadeFrames, span],
     [0, 1, 1, 0],
     { extrapolateRight: "clamp", extrapolateLeft: "clamp" },
   );

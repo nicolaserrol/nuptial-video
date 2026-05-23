@@ -5,6 +5,7 @@ import {
   Series,
   type CalculateMetadataFunction,
   staticFile,
+  useCurrentFrame,
 } from "remotion";
 import { getAudioDurationInSeconds } from "@remotion/media-utils";
 import { z } from "zod";
@@ -136,5 +137,77 @@ export const NuptialPromo: React.FC<NuptialPromoProps> = ({
 
 const Background: React.FC = () => {
   const brand = useBrand();
-  return <AbsoluteFill style={{ background: brand.gradients.blush }} />;
+  return (
+    <AbsoluteFill style={{ background: brand.gradients.blush, overflow: "hidden" }}>
+      <DriftingOrb
+        color={brand.colors.pink[200]}
+        size={1200}
+        startX={-200}
+        startY={-200}
+        endX={120}
+        endY={80}
+        opacity={0.55}
+      />
+      <DriftingOrb
+        color={brand.colors.rose[200]}
+        size={900}
+        startX={900}
+        startY={1500}
+        endX={650}
+        endY={1200}
+        opacity={0.45}
+        delay={20}
+      />
+      <DriftingOrb
+        color={brand.colors.pink[100]}
+        size={700}
+        startX={700}
+        startY={-100}
+        endX={500}
+        endY={200}
+        opacity={0.6}
+        delay={40}
+      />
+      <AbsoluteFill
+        style={{
+          background:
+            "radial-gradient(ellipse at center, transparent 40%, rgba(31, 17, 23, 0.18) 100%)",
+        }}
+      />
+    </AbsoluteFill>
+  );
+};
+
+const DriftingOrb: React.FC<{
+  color: string;
+  size: number;
+  startX: number;
+  startY: number;
+  endX: number;
+  endY: number;
+  opacity: number;
+  delay?: number;
+}> = ({ color, size, startX, startY, endX, endY, opacity, delay = 0 }) => {
+  const frame = useCurrentFrame();
+  const t = Math.max(0, frame - delay);
+  // Slow continuous drift across the whole video; sine wobble adds organic motion.
+  const progress = (t / 240) % 1;
+  const wobble = Math.sin(t / 45) * 30;
+  const x = startX + (endX - startX) * progress + wobble;
+  const y = startY + (endY - startY) * progress + Math.cos(t / 55) * 24;
+  return (
+    <div
+      style={{
+        position: "absolute",
+        left: x,
+        top: y,
+        width: size,
+        height: size,
+        borderRadius: "50%",
+        background: `radial-gradient(circle at 30% 30%, ${color} 0%, transparent 65%)`,
+        opacity,
+        filter: "blur(40px)",
+      }}
+    />
+  );
 };

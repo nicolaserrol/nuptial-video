@@ -16,5 +16,6 @@ public/voiceover/**/.cache.json
 
 .agents/tmp/
 .agents/
+.claude/
 
 tmp/
