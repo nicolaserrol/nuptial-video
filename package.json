@@ -30,6 +30,7 @@
     "dev": "remotion studio",
     "build": "remotion bundle",
     "voiceover": "tsx scripts/generate-voiceover.ts",
+    "atoms": "tsx scripts/list-atoms.ts",
     "render:reel": "remotion render NuptialReel out/nuptial-reel.mp4",
     "render:square": "remotion render NuptialSquare out/nuptial-square.mp4",
     "render:landscape": "remotion render NuptialLandscape out/nuptial-landscape.mp4",
