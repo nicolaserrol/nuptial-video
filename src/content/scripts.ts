@@ -15,7 +15,58 @@ export type SceneCopy = {
   captions?: Caption[];
 };
 
+export type VideoType =
+  | "promo"
+  | "marketing"
+  | "informational"
+  | "educational"
+  | "testimonial"
+  | "feature-demo"
+  | "behind-the-scenes"
+  | "announcement";
+
+export type Audience =
+  | "engaged-couples"
+  | "newly-engaged"
+  | "wedding-planners"
+  | "guests"
+  | "general";
+
+export type Platform =
+  | "instagram-reels"
+  | "instagram-feed"
+  | "tiktok"
+  | "facebook-reels"
+  | "facebook-feed"
+  | "youtube-shorts"
+  | "youtube-landscape"
+  | "linkedin"
+  | "website";
+
+export type FunnelStage = "awareness" | "interest" | "consideration" | "conversion" | "retention";
+
+export type PsychologicalAngle =
+  | "pain-relief"
+  | "transformation"
+  | "social-proof"
+  | "scarcity"
+  | "authority"
+  | "curiosity"
+  | "belonging"
+  | "loss-aversion";
+
+export type VideoMetadata = {
+  videoType: VideoType;
+  audience: Audience;
+  platforms: Platform[];
+  funnelStage: FunnelStage;
+  psychologicalAngle?: PsychologicalAngle;
+  /** Free-form tags for search/grouping (e.g. "spring-2026-launch"). */
+  tags?: string[];
+};
+
 export type VideoScript = {
+  metadata?: VideoMetadata;
   lines: ElevenLabsLine[];
   scenes: SceneCopy[];
   cta: {
@@ -67,8 +118,26 @@ const REEL_SCENES: SceneCopy[] = [
   },
 ];
 
+const PROMO_METADATA: VideoMetadata = {
+  videoType: "promo",
+  audience: "engaged-couples",
+  funnelStage: "awareness",
+  psychologicalAngle: "pain-relief",
+  platforms: [
+    "instagram-reels",
+    "instagram-feed",
+    "tiktok",
+    "facebook-reels",
+    "facebook-feed",
+    "youtube-shorts",
+    "youtube-landscape",
+  ],
+  tags: ["launch", "brand-anchor"],
+};
+
 export const SCRIPTS: Record<string, VideoScript> = {
   NuptialReel: {
+    metadata: { ...PROMO_METADATA, platforms: ["instagram-reels", "tiktok", "facebook-reels", "youtube-shorts"] },
     lines: REEL_LINES,
     scenes: REEL_SCENES,
     cta: {
@@ -78,6 +147,7 @@ export const SCRIPTS: Record<string, VideoScript> = {
     },
   },
   NuptialSquare: {
+    metadata: { ...PROMO_METADATA, platforms: ["instagram-feed", "facebook-feed"] },
     lines: REEL_LINES,
     scenes: REEL_SCENES,
     cta: {
@@ -87,6 +157,7 @@ export const SCRIPTS: Record<string, VideoScript> = {
     },
   },
   NuptialLandscape: {
+    metadata: { ...PROMO_METADATA, platforms: ["youtube-landscape", "website"] },
     lines: REEL_LINES,
     scenes: REEL_SCENES,
     cta: {
@@ -96,3 +167,13 @@ export const SCRIPTS: Record<string, VideoScript> = {
     },
   },
 };
+
+/** Filter helpers — useful for content calendars and ad-hoc queries. */
+export const scriptsByPlatform = (platform: Platform) =>
+  Object.entries(SCRIPTS).filter(([, s]) => s.metadata?.platforms.includes(platform));
+
+export const scriptsByType = (videoType: VideoType) =>
+  Object.entries(SCRIPTS).filter(([, s]) => s.metadata?.videoType === videoType);
+
+export const scriptsByFunnelStage = (stage: FunnelStage) =>
+  Object.entries(SCRIPTS).filter(([, s]) => s.metadata?.funnelStage === stage);
