@@ -211,6 +211,14 @@ export const SCRIPTS: Record<string, VideoScript> = {
   },
 };
 
+// Merge in generated videos (one composition entry per declared format).
+import { GENERATED_VIDEOS } from "./videos";
+for (const video of GENERATED_VIDEOS) {
+  for (const format of video.formats) {
+    SCRIPTS[`${video.id}${format.suffix}`] = video.script;
+  }
+}
+
 /** Filter helpers — useful for content calendars and ad-hoc queries. */
 export const scriptsByPlatform = (platform: Platform) =>
   Object.entries(SCRIPTS).filter(([, s]) => s.metadata?.platforms.includes(platform));

@@ -15,6 +15,7 @@ import {
   calculateNuptialPromoMetadata,
   type NuptialPromoProps,
 } from "./templates/nuptial-promo";
+import { GENERATED_VIDEOS } from "../content/videos";
 
 export type AspectFormat = {
   /** Composition id used in Studio + renderer. */
@@ -38,7 +39,7 @@ export type TemplateRegistration<Props extends { compositionId: string }> = {
   formats: AspectFormat[];
 };
 
-export const TEMPLATES: TemplateRegistration<NuptialPromoProps>[] = [
+const BUILT_IN_TEMPLATES: TemplateRegistration<NuptialPromoProps>[] = [
   {
     id: "nuptial-promo",
     description:
@@ -60,4 +61,34 @@ export const TEMPLATES: TemplateRegistration<NuptialPromoProps>[] = [
       { id: "NuptialLandscape", width: 1920, height: 1080 },
     ],
   },
+];
+
+const templateById = new Map(BUILT_IN_TEMPLATES.map((t) => [t.id, t]));
+
+/** Expand each generated video into its own TemplateRegistration so each
+ *  video shows up as its own group of compositions in Studio. */
+const GENERATED_TEMPLATES: TemplateRegistration<NuptialPromoProps>[] =
+  GENERATED_VIDEOS.map((video) => {
+    const base = templateById.get(video.templateId);
+    if (!base) {
+      throw new Error(
+        `Generated video "${video.id}" references unknown template "${video.templateId}".`,
+      );
+    }
+    return {
+      ...base,
+      id: `${base.id}:${video.id}`,
+      description: `${video.title} — uses ${base.id}`,
+      formats: video.formats.map((f) => ({
+        id: `${video.id}${f.suffix}`,
+        width: f.width,
+        height: f.height,
+        propOverrides: f.propOverrides,
+      })),
+    };
+  });
+
+export const TEMPLATES: TemplateRegistration<NuptialPromoProps>[] = [
+  ...BUILT_IN_TEMPLATES,
+  ...GENERATED_TEMPLATES,
 ];

@@ -14,4 +14,4 @@ public/voiceover/**/.cache.json
 # Remotion / tooling
 .cache
 
-.agents/
+.agents/tmp/
