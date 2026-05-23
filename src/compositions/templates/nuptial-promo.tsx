@@ -8,12 +8,12 @@ import {
 } from "remotion";
 import { getAudioDurationInSeconds } from "@remotion/media-utils";
 import { z } from "zod";
-import { BrandTheme, useBrand } from "../brand/BrandTheme";
-import { CaptionedScene } from "../components/CaptionedScene";
-import { CTAEndCard } from "../components/CTAEndCard";
-import { LowerThird } from "../components/LowerThird";
-import { SCRIPTS } from "../content/scripts";
-import { autoCaptions } from "../utils/captions";
+import { BrandTheme, useBrand } from "../../brand/BrandTheme";
+import { CaptionedScene } from "../../components/CaptionedScene";
+import { CTAEndCard } from "../../components/CTAEndCard";
+import { LowerThird } from "../../components/LowerThird";
+import { SCRIPTS } from "../../content/scripts";
+import { autoCaptions } from "../../utils/captions";
 
 export const nuptialPromoSchema = z.object({
   compositionId: z.string(),

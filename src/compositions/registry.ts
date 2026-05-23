@@ -1,0 +1,63 @@
+// Composition registry — single source of truth for every video this repo can render.
+//
+// Add a new video by:
+//   1. Building a template module under `src/compositions/templates/`
+//      exporting `component`, `schema`, `calculateMetadata`.
+//   2. Appending a TemplateRegistration here with its formats.
+//   3. (Optional) Adding scripts under SCRIPTS keyed by each format's id.
+
+import type { CalculateMetadataFunction } from "remotion";
+import type { ComponentType } from "react";
+import type { ZodTypeAny } from "zod";
+import {
+  NuptialPromo,
+  nuptialPromoSchema,
+  calculateNuptialPromoMetadata,
+  type NuptialPromoProps,
+} from "./templates/nuptial-promo";
+
+export type AspectFormat = {
+  /** Composition id used in Studio + renderer. */
+  id: string;
+  width: number;
+  height: number;
+  /** Extra prop overrides for this format (merged into the template's defaults). */
+  propOverrides?: Record<string, unknown>;
+};
+
+export type TemplateRegistration<Props extends { compositionId: string }> = {
+  /** Template family id, e.g. "nuptial-promo". */
+  id: string;
+  description: string;
+  component: ComponentType<Props>;
+  schema: ZodTypeAny;
+  fps: number;
+  fallbackDurationInFrames: number;
+  defaultProps: Omit<Props, "compositionId">;
+  calculateMetadata: CalculateMetadataFunction<Props>;
+  formats: AspectFormat[];
+};
+
+export const TEMPLATES: TemplateRegistration<NuptialPromoProps>[] = [
+  {
+    id: "nuptial-promo",
+    description:
+      "Three-to-five-scene voiceover promo with branded background, captions, and CTA end card.",
+    component: NuptialPromo,
+    schema: nuptialPromoSchema,
+    fps: 30,
+    fallbackDurationInFrames: 20 * 30,
+    defaultProps: { showLowerThird: true, showCaptions: true },
+    calculateMetadata: calculateNuptialPromoMetadata,
+    formats: [
+      { id: "NuptialReel", width: 1080, height: 1920 },
+      {
+        id: "NuptialSquare",
+        width: 1080,
+        height: 1080,
+        propOverrides: { showLowerThird: false },
+      },
+      { id: "NuptialLandscape", width: 1920, height: 1080 },
+    ],
+  },
+];
