@@ -23,7 +23,12 @@ async function run() {
     const outDir = join(ROOT, "public", "voiceover", compositionId);
     mkdirSync(outDir, { recursive: true });
     console.log(`\n▶  ${compositionId} (${script.lines.length} lines)`);
-    const results = await generateVoiceover(script.lines, { outDir });
+    const results = await generateVoiceover(script.lines, {
+      outDir,
+      defaultVoiceId: script.voice?.voiceId,
+      defaultModelId: script.voice?.modelId,
+      defaultVoiceSettings: script.voice?.voiceSettings,
+    });
     for (const r of results) {
       console.log(
         `   ${r.cached ? "·" : "✓"} ${r.id}${r.cached ? " (cached)" : ""}`,

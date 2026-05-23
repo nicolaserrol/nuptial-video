@@ -5,7 +5,13 @@
 // Copy themes are derived from ../../../nuptial/PRD-Nuptial.md and
 // ../../../nuptial/PRD-Features.md. Refresh whenever positioning shifts.
 
-import type { ElevenLabsLine } from "../audio/elevenlabs";
+import type { ElevenLabsLine, ElevenLabsVoiceSettings } from "../audio/elevenlabs";
+
+export type ScriptVoice = {
+  voiceId?: string;
+  modelId?: string;
+  voiceSettings?: ElevenLabsVoiceSettings;
+};
 
 export type Caption = { text: string; from: number; to: number };
 
@@ -82,6 +88,8 @@ export type VideoMetadata = {
 
 export type VideoScript = {
   metadata?: VideoMetadata;
+  /** Default voice for every line in this script (per-line voiceId still wins). */
+  voice?: ScriptVoice;
   lines: ElevenLabsLine[];
   scenes: SceneCopy[];
   cta: {
