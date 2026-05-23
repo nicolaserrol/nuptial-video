@@ -15,3 +15,4 @@ public/voiceover/**/.cache.json
 .cache
 
 .agents/tmp/
+.agents/
