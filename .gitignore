@@ -2,6 +2,16 @@ node_modules
 dist
 .DS_Store
 .env
+.env.local
 
-# Ignore the output video from Git but not videos you import into src/.
+# Build / render output
 out
+
+# Generated voiceover artifacts (regenerate with `npm run voiceover`)
+public/voiceover/**/*.mp3
+public/voiceover/**/.cache.json
+
+# Remotion / tooling
+.cache
+
+.agents/
