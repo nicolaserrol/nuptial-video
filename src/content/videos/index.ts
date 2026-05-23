@@ -6,9 +6,11 @@
 import type { VideoModule } from "./types";
 
 // <AUTO_IMPORTS_START>
+import { weddingPrepTimeBreakdown } from "./wedding-prep-time-breakdown";
 // <AUTO_IMPORTS_END>
 
 export const GENERATED_VIDEOS: VideoModule[] = [
   // <AUTO_ENTRIES_START>
-  // <AUTO_ENTRIES_END>
+  weddingPrepTimeBreakdown,
+// <AUTO_ENTRIES_END>
 ];

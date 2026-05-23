@@ -1,28 +1,34 @@
 import { createHash } from "node:crypto";
 import { mkdirSync, existsSync, writeFileSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { MsEdgeTTS, OUTPUT_FORMAT } from "msedge-tts";
+import type { Readable } from "node:stream";
 
+/**
+ * Voice options for Microsoft Edge TTS.
+ * `rate`, `pitch`, `volume` accept SSML-style relative strings, e.g. "+10%", "-5%", "0%".
+ */
 export type ElevenLabsVoiceSettings = {
-  stability?: number;
-  similarity_boost?: number;
-  style?: number;
-  use_speaker_boost?: boolean;
+  rate?: string;
+  pitch?: string;
+  volume?: string;
 };
 
 export type ElevenLabsLine = {
   /** Stable identifier used as the filename (e.g. "scene-01-intro"). */
   id: string;
   text: string;
+  /** Edge TTS voice name, e.g. "en-US-AvaMultilingualNeural". */
   voiceId?: string;
+  /** Unused for Edge TTS; kept for back-compat with existing scripts. */
   modelId?: string;
   voiceSettings?: ElevenLabsVoiceSettings;
 };
 
 export type GenerateVoiceoverOptions = {
-  /** Output directory, relative to repo root. Defaults to public/voiceover/<compositionId>. */
   outDir: string;
-  /** Cache manifest path. Defaults to <outDir>/.cache.json. */
   cachePath?: string;
+  /** Unused for Edge TTS — kept for API back-compat. */
   apiKey?: string;
   defaultVoiceId?: string;
   defaultModelId?: string;
@@ -32,18 +38,11 @@ export type GenerateVoiceoverOptions = {
 type CacheEntry = { hash: string; file: string };
 type CacheManifest = Record<string, CacheEntry>;
 
-const DEFAULT_VOICE_SETTINGS: ElevenLabsVoiceSettings = {
-  stability: 0.5,
-  similarity_boost: 0.75,
-  style: 0.35,
-  use_speaker_boost: true,
-};
+const DEFAULT_VOICE = "en-US-AvaMultilingualNeural";
 
-const ENDPOINT = "https://api.elevenlabs.io/v1/text-to-speech";
-
-const hashOf = (text: string, voiceId: string, modelId: string) =>
+const hashOf = (text: string, voice: string, settings: ElevenLabsVoiceSettings) =>
   createHash("sha256")
-    .update(`${voiceId}::${modelId}::${text}`)
+    .update(`${voice}::${JSON.stringify(settings)}::${text}`)
     .digest("hex")
     .slice(0, 16);
 
@@ -61,27 +60,33 @@ const saveCache = (path: string, cache: CacheManifest) => {
   writeFileSync(path, JSON.stringify(cache, null, 2));
 };
 
+const streamToBuffer = (stream: Readable): Promise<Buffer> =>
+  new Promise((resolve, reject) => {
+    const chunks: Buffer[] = [];
+    let settled = false;
+    const finish = () => {
+      if (settled) return;
+      settled = true;
+      resolve(Buffer.concat(chunks));
+    };
+    stream.on("data", (chunk: Buffer) => chunks.push(chunk));
+    stream.on("end", finish);
+    stream.on("close", finish);
+    stream.on("error", (err) => {
+      if (settled) return;
+      settled = true;
+      reject(err);
+    });
+  });
+
 export async function generateVoiceover(
   lines: ElevenLabsLine[],
   options: GenerateVoiceoverOptions,
 ): Promise<{ id: string; file: string; cached: boolean }[]> {
-  const apiKey = options.apiKey ?? process.env.ELEVENLABS_API_KEY;
-  if (!apiKey) {
-    throw new Error(
-      "ELEVENLABS_API_KEY is not set. Add it to .env or pass apiKey explicitly.",
-    );
-  }
-  const defaultVoiceId =
-    options.defaultVoiceId ?? process.env.ELEVENLABS_VOICE_ID;
-  if (!defaultVoiceId) {
-    throw new Error(
-      "ELEVENLABS_VOICE_ID is not set. Add it to .env or pass defaultVoiceId.",
-    );
-  }
-  const defaultModelId =
-    options.defaultModelId ??
-    process.env.ELEVENLABS_MODEL_ID ??
-    "eleven_turbo_v2_5";
+  const defaultVoice =
+    options.defaultVoiceId ??
+    process.env.EDGE_TTS_VOICE ??
+    DEFAULT_VOICE;
 
   mkdirSync(options.outDir, { recursive: true });
   const cachePath = options.cachePath ?? join(options.outDir, ".cache.json");
@@ -90,9 +95,12 @@ export async function generateVoiceover(
   const results: { id: string; file: string; cached: boolean }[] = [];
 
   for (const line of lines) {
-    const voiceId = line.voiceId ?? defaultVoiceId;
-    const modelId = line.modelId ?? defaultModelId;
-    const hash = hashOf(line.text, voiceId, modelId);
+    const voice = line.voiceId ?? defaultVoice;
+    const voiceSettings: ElevenLabsVoiceSettings = {
+      ...options.defaultVoiceSettings,
+      ...line.voiceSettings,
+    };
+    const hash = hashOf(line.text, voice, voiceSettings);
     const file = join(options.outDir, `${line.id}.mp3`);
     const prior = cache[line.id];
 
@@ -101,34 +109,37 @@ export async function generateVoiceover(
       continue;
     }
 
-    const voiceSettings = {
-      ...DEFAULT_VOICE_SETTINGS,
-      ...options.defaultVoiceSettings,
-      ...line.voiceSettings,
-    };
+    const tts = new MsEdgeTTS();
+    await tts.setMetadata(
+      voice,
+      OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3,
+    );
 
-    const res = await fetch(`${ENDPOINT}/${voiceId}`, {
-      method: "POST",
-      headers: {
-        "xi-api-key": apiKey,
-        "Content-Type": "application/json",
-        Accept: "audio/mpeg",
-      },
-      body: JSON.stringify({
-        text: line.text,
-        model_id: modelId,
-        voice_settings: voiceSettings,
-      }),
-    });
-
-    if (!res.ok) {
-      const body = await res.text();
+    let buf: Buffer;
+    try {
+      const prosody: Record<string, string> = {};
+      if (voiceSettings.rate) prosody.rate = voiceSettings.rate;
+      if (voiceSettings.pitch) prosody.pitch = voiceSettings.pitch;
+      if (voiceSettings.volume) prosody.volume = voiceSettings.volume;
+      const { audioStream } = tts.toStream(
+        line.text,
+        Object.keys(prosody).length ? prosody : undefined,
+      );
+      buf = await streamToBuffer(audioStream as unknown as Readable);
+    } catch (err) {
       throw new Error(
-        `ElevenLabs TTS failed for "${line.id}" (${res.status}): ${body}`,
+        `Edge TTS failed for "${line.id}": ${
+          err instanceof Error ? err.message : String(err)
+        }`,
       );
     }
 
-    const buf = Buffer.from(await res.arrayBuffer());
+    if (buf.length === 0) {
+      throw new Error(
+        `Edge TTS produced empty audio for "${line.id}" (voice="${voice}"). Check voice name.`,
+      );
+    }
+
     writeFileSync(file, buf);
     cache[line.id] = { hash, file };
     saveCache(cachePath, cache);
