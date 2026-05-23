@@ -12,13 +12,16 @@ import { BrandTheme, useBrand } from "../../brand/BrandTheme";
 import { CaptionedScene } from "../../components/CaptionedScene";
 import { CTAEndCard } from "../../components/CTAEndCard";
 import { LowerThird } from "../../components/LowerThird";
-import { SCRIPTS } from "../../content/scripts";
+import { SCRIPTS, resolveHeadline } from "../../content/scripts";
 import { autoCaptions } from "../../utils/captions";
 
 export const nuptialPromoSchema = z.object({
   compositionId: z.string(),
   showLowerThird: z.boolean().default(true),
   showCaptions: z.boolean().default(true),
+  hookStyle: z
+    .enum(["curiosity", "value", "contrarian", "transformation", "social-proof"])
+    .optional(),
 });
 
 export type NuptialPromoProps = z.infer<typeof nuptialPromoSchema> & {
@@ -70,6 +73,7 @@ export const NuptialPromo: React.FC<NuptialPromoProps> = ({
   compositionId,
   showLowerThird,
   showCaptions,
+  hookStyle,
   sceneDurations,
   ctaDurationFrames,
 }) => {
@@ -94,7 +98,7 @@ export const NuptialPromo: React.FC<NuptialPromoProps> = ({
             <Series.Sequence key={scene.id} durationInFrames={durations[idx]}>
               <CaptionedScene
                 audioSrc={`voiceover/${compositionId}/${scene.id}.mp3`}
-                headline={scene.headline}
+                headline={resolveHeadline(scene, hookStyle)}
                 subhead={scene.subhead}
                 captions={captions}
               />

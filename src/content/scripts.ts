@@ -8,12 +8,27 @@
 import type { ElevenLabsLine } from "../audio/elevenlabs";
 
 export type Caption = { text: string; from: number; to: number };
+
+export type HookStyle =
+  | "curiosity"
+  | "value"
+  | "contrarian"
+  | "transformation"
+  | "social-proof";
+
 export type SceneCopy = {
   id: string;
+  /** Default headline; used when no matching variant is found. */
   headline: string;
   subhead?: string;
   captions?: Caption[];
+  /** Alternate headlines indexed by hook style. */
+  headlineVariants?: Partial<Record<HookStyle, string>>;
 };
+
+/** Pick a headline by hook style, falling back to the default. */
+export const resolveHeadline = (scene: SceneCopy, hook?: HookStyle): string =>
+  (hook && scene.headlineVariants?.[hook]) || scene.headline;
 
 export type VideoType =
   | "promo"
@@ -100,21 +115,41 @@ const REEL_SCENES: SceneCopy[] = [
     id: "scene-01-hook",
     headline: "Wedding planning,\nwithout the chaos.",
     subhead: "Built for couples who'd rather enjoy the engagement.",
+    headlineVariants: {
+      curiosity: "What if planning was\nthe fun part?",
+      value: "Plan your wedding\nin half the time.",
+      contrarian: "Spreadsheets ruin\nengagements.",
+      transformation: "From chaos to calm,\nin one app.",
+    },
   },
   {
     id: "scene-02-features",
     headline: "Everything in one place.",
     subhead: "Guests · RSVPs · Seating · Budget · Tasks",
+    headlineVariants: {
+      value: "Five tools.\nOne calm dashboard.",
+      curiosity: "What if it all\nlived together?",
+      transformation: "One place,\nzero tabs open.",
+    },
   },
   {
     id: "scene-03-einvite",
     headline: "Beautiful e-invites.",
     subhead: "Designed to open. Easy to send.",
+    headlineVariants: {
+      value: "Invitations that\nactually get opened.",
+      "social-proof": "Loved by\n10,000+ couples.",
+      curiosity: "Why your invites\nget ignored.",
+    },
   },
   {
     id: "scene-04-cta",
     headline: "Start free today.",
     subhead: "nuptial.app",
+    headlineVariants: {
+      value: "Free forever\nto get started.",
+      transformation: "Start today.\nBreathe tomorrow.",
+    },
   },
 ];
 
