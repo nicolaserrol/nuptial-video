@@ -13,10 +13,12 @@ import { CaptionedScene } from "../components/CaptionedScene";
 import { CTAEndCard } from "../components/CTAEndCard";
 import { LowerThird } from "../components/LowerThird";
 import { SCRIPTS } from "../content/scripts";
+import { autoCaptions } from "../utils/captions";
 
 export const nuptialPromoSchema = z.object({
   compositionId: z.string(),
   showLowerThird: z.boolean().default(true),
+  showCaptions: z.boolean().default(true),
 });
 
 export type NuptialPromoProps = z.infer<typeof nuptialPromoSchema> & {
@@ -67,6 +69,7 @@ export const calculateNuptialPromoMetadata: CalculateMetadataFunction<
 export const NuptialPromo: React.FC<NuptialPromoProps> = ({
   compositionId,
   showLowerThird,
+  showCaptions,
   sceneDurations,
   ctaDurationFrames,
 }) => {
@@ -74,20 +77,30 @@ export const NuptialPromo: React.FC<NuptialPromoProps> = ({
   const durations =
     sceneDurations ?? script.lines.map(() => FALLBACK_SECONDS_PER_SCENE * FPS);
   const ctaFrames = ctaDurationFrames ?? CTA_SECONDS * FPS;
+  const linesById = new Map(script.lines.map((l) => [l.id, l]));
 
   return (
     <BrandTheme>
       <Background />
       <Series>
-        {script.scenes.map((scene, idx) => (
-          <Series.Sequence key={scene.id} durationInFrames={durations[idx]}>
-            <CaptionedScene
-              audioSrc={`voiceover/${compositionId}/${scene.id}.mp3`}
-              headline={scene.headline}
-              subhead={scene.subhead}
-            />
-          </Series.Sequence>
-        ))}
+        {script.scenes.map((scene, idx) => {
+          const line = linesById.get(scene.id);
+          const captions =
+            showCaptions === false
+              ? undefined
+              : (scene.captions ??
+                (line ? autoCaptions(line.text, durations[idx]) : undefined));
+          return (
+            <Series.Sequence key={scene.id} durationInFrames={durations[idx]}>
+              <CaptionedScene
+                audioSrc={`voiceover/${compositionId}/${scene.id}.mp3`}
+                headline={scene.headline}
+                subhead={scene.subhead}
+                captions={captions}
+              />
+            </Series.Sequence>
+          );
+        })}
         <Series.Sequence durationInFrames={ctaFrames}>
           <CTAEndCard
             headline={script.cta.headline}

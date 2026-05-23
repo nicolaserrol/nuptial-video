@@ -2,6 +2,8 @@ import React from "react";
 import { AbsoluteFill, Audio, staticFile } from "remotion";
 import { useBrand } from "../brand/BrandTheme";
 import { TextReveal } from "./TextReveal";
+import { Captions } from "./Captions";
+import type { Caption } from "../content/scripts";
 
 type Props = {
   audioSrc?: string;
@@ -10,6 +12,7 @@ type Props = {
   background?: React.ReactNode;
   /** Tint over background for legibility. */
   tint?: string;
+  captions?: Caption[];
 };
 
 export const CaptionedScene: React.FC<Props> = ({
@@ -18,6 +21,7 @@ export const CaptionedScene: React.FC<Props> = ({
   subhead,
   background,
   tint,
+  captions,
 }) => {
   const brand = useBrand();
   return (
@@ -53,6 +57,7 @@ export const CaptionedScene: React.FC<Props> = ({
           </>
         ) : null}
       </AbsoluteFill>
+      {captions && captions.length > 0 ? <Captions captions={captions} /> : null}
       {audioSrc ? <Audio src={staticFile(audioSrc)} /> : null}
     </AbsoluteFill>
   );
